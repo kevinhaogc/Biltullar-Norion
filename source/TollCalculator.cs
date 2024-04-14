@@ -13,7 +13,7 @@ public class TollCalculator
      * @return - the total toll fee for that day
      */
 
-    public int GetTollFee(Vehicle vehicle, DateTime[] dates)
+    public int GetTollFee(Vehicle vehicle, DateTime[] dates) // assuming dates are in order
     {
         int totalFee = 0;
         // check if vehicle is tollfree first
