@@ -15,12 +15,17 @@ public class TollCalculator
 
     public int GetTollFee(Vehicle vehicle, DateTime[] dates)
     {
-        DateTime intervalStart = dates[0];
         int totalFee = 0;
+        // check if vehicle is tollfree first
+        if (IsTollFreeVehicle(vehicle)) return totalFee;
+
+        DateTime intervalStart = dates[0];
+        int tempFee = 0;
+
         foreach (DateTime date in dates)
         {
-            int nextFee = GetTollFee(date, vehicle);
-            int tempFee = GetTollFee(intervalStart, vehicle);
+            if (totalFee > 60) return 60; // total fee should be checked first instead of after loop is finished
+            int nextFee = GetTollFee(date);
 
             long diffInMillies = date.Millisecond - intervalStart.Millisecond;
             long minutes = diffInMillies/1000/60;
@@ -34,27 +39,24 @@ public class TollCalculator
             else
             {
                 totalFee += nextFee;
+                intervalStart = date; // adding the possibility of having multiple intervals
+                tempFee = nextFee; // saving tempFee outside of the loop to avoid unnecessary calculations
             }
         }
-        if (totalFee > 60) totalFee = 60;
         return totalFee;
     }
 
     private bool IsTollFreeVehicle(Vehicle vehicle)
     {
+        // checks one function instead of all toll free types of vehicle.
         if (vehicle == null) return false;
-        String vehicleType = vehicle.GetVehicleType();
-        return vehicleType.Equals(TollFreeVehicles.Motorbike.ToString()) ||
-               vehicleType.Equals(TollFreeVehicles.Tractor.ToString()) ||
-               vehicleType.Equals(TollFreeVehicles.Emergency.ToString()) ||
-               vehicleType.Equals(TollFreeVehicles.Diplomat.ToString()) ||
-               vehicleType.Equals(TollFreeVehicles.Foreign.ToString()) ||
-               vehicleType.Equals(TollFreeVehicles.Military.ToString());
+        return vehicle.IsTollFreeVehicle();
     }
 
-    public int GetTollFee(DateTime date, Vehicle vehicle)
+    public int GetTollFee(DateTime date)
     {
-        if (IsTollFreeDate(date) || IsTollFreeVehicle(vehicle)) return 0;
+        // tollFreeVehicle check can be removed since main function checks for tollFreeVehicle already
+        if (IsTollFreeDate(date)) return 0;
 
         int hour = date.Hour;
         int minute = date.Minute;
@@ -94,15 +96,5 @@ public class TollCalculator
             }
         }
         return false;
-    }
-
-    private enum TollFreeVehicles
-    {
-        Motorbike = 0,
-        Tractor = 1,
-        Emergency = 2,
-        Diplomat = 3,
-        Foreign = 4,
-        Military = 5
     }
 }

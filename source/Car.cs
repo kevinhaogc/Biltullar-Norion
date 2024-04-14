@@ -12,5 +12,10 @@ namespace TollFeeCalculator
         {
             return "Car";
         }
+
+        public bool IsTollFreeVehicle()
+        {
+            return false;
+        }
     }
 }
